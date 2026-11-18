@@ -1,6 +1,17 @@
 """
-It’s the one-time (or re-run-when-docs-change) job that actually builds the database rag.py later searches.
-Writes the KNOWLEDGE BASE/
+Stage 2 of the ingestion pipeline. Run after pdfs_to_text.py has produced
+the .txt files in DATA_PATH. This script is the one-time (or
+re-run-when-docs-change) job that actually builds the vector database that
+rag.py (planned) will later search:
+
+1. setup_vector_db() opens/creates the LanceDB database at
+   VECTOR_DATABASE_PATH, with a table shaped like the Article model
+   (see data_models.py).
+2. ingest_docs_to_vector_db() reads every .txt file in DATA_PATH and adds
+   it as a row — LanceDB calls the Cohere embedding model automatically
+   for each row (again, see data_models.py).
+
+Run directly with `uv run ingestion.py` (see the __main__ block below).
 """
 
 from backend.constants import VECTOR_DATABASE_PATH, DATA_PATH
@@ -57,7 +68,8 @@ def ingest_docs_to_vector_db(table):
         time.sleep(30)   # pause 30 seconds — Google's embedding API only allows so many requests per minute, so this avoids hitting that limit
 
 
-# This block only runs when you execute "python -m backend.ingestion" directly.
+# This block only runs when you execute this file directly (e.g. "uv run ingestion.py"),
+# not when some other script imports functions from this file.
 if __name__ == "__main__":
     vector_db = setup_vector_db(VECTOR_DATABASE_PATH)
 
