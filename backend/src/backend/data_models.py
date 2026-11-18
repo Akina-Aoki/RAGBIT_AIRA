@@ -1,21 +1,19 @@
 """
 This is the shared vocabulary of the whole project — the data shapes that
-ingestion.py, rag.py and api.py pass around, defined once here so all three
-agree.
+ingestion.py and rag.py pass around, defined once here so both sides agree.
 
 Article describes what gets stored in the vector database (one row per
 source document, built by ingestion.py).
 
-Prompt describes what comes in from the user (api.py's request body).
-RagResponse describes what goes out as the answer (rag_agent's output_type
-in rag.py) — drafted here as a reasonable guess; compare against whatever
-shape the lecture actually used.
+Prompt (what comes in from the user) and RagResponse (what goes out as the
+answer) are planned for rag.py but not written yet.
 """
 
 import os
 from pydantic import BaseModel, Field
 from lancedb.embeddings import get_registry
 from lancedb.pydantic import LanceModel, Vector
+from pydantic import BaseModel, Field
 from dotenv import load_dotenv
 
 # Loads variables from a .env file (e.g. the Cohere API key) into the
@@ -48,21 +46,21 @@ class Article(LanceModel):
 
 class Prompt(BaseModel):
     """
-    The request body api.py's /rag/query endpoint expects — just the
-    user's question as plain text.
+    This is the shape of what a user sends in when they ask a question.
+    FastAPI (in api.py) uses this to check that an incoming request
+    actually contains a "prompt" field with text in it, and rejects
+    anything that doesn't match.
     """
-    prompt: str
+    prompt: str = Field(description = "prompt from user, if empty consider prompt as missing.")
 
 
 class RagResponse(BaseModel):
     """
-    The shape rag_agent (in rag.py) is forced to answer in, via
-    `output_type=RagResponse`. pydantic-ai makes the LLM fill in exactly
-    these fields instead of returning free-form text.
-
-    answer: the actual answer to the user's question.
-    source: which file(s) the answer was based on, since rag_agent's
-        instructions tell it to always cite its source.
+    This is the shape we FORCE the AI's answer into. Instead of letting
+    the AI just reply with free-form text, we tell it: your answer must
+    fill in exactly these three fields. That makes the response
+    predictable and easy for app.py (the Streamlit page) to read.
     """
-    answer: str
-    source: str
+    filename: str = Field(description="filename of the retrieved file without suffix")
+    filepath: str = Field(description="absolute path to the retrieved file")
+    answer: str = Field(description="answer based on the retrieved file")

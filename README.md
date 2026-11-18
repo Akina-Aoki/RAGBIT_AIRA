@@ -94,6 +94,30 @@ As a result, every generated `.txt` file currently contains the same
 Netherland Dwarf rabbit text rather than its own PDF's content. See the
 comment above that function for the one-line fix.
 
+## Logfire setup (observability)
+
+`api.py` already calls `logfire.configure()`, `logfire.instrument.pydantic_ai()`,
+and `logfire.instrument_fastapi(app)` — this sends traces of every
+`/rag/query` request (including what the agent and the vector search did)
+to Logfire so you can inspect them. To connect it to your own Logfire
+project:
+
+1. Go to your Logfire projects page:
+   https://logfire-eu.pydantic.dev/akina-aoki/-/projects
+2. Create a new project.
+3. Open that project's **Security and access** settings.
+4. Create a **Write token**.
+5. Generate the token, copy it, and add it to your `.env` file as:
+
+   ```
+   LOGFIRE_TOKEN=<the token you generated>
+   ```
+
+   (`.env.example` already has a `LOGFIRE_TOKEN=` line as a placeholder.)
+
+Once the token is set, run the API (`uv run uvicorn api:app --reload`) and
+hit `/rag/query` — traces should start showing up in that Logfire project.
+
 ## Project setup history
 
 This workspace was created with:
