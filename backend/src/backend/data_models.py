@@ -1,12 +1,15 @@
 """
 This is the shared vocabulary of the whole project — the data shapes that
-ingestion.py and rag.py pass around, defined once here so both sides agree.
+ingestion.py, rag.py and api.py pass around, defined once here so all three
+agree.
 
 Article describes what gets stored in the vector database (one row per
 source document, built by ingestion.py).
 
-Prompt (what comes in from the user) and RagResponse (what goes out as the
-answer) are planned for rag.py but not written yet.
+Prompt describes what comes in from the user (api.py's request body).
+RagResponse describes what goes out as the answer (rag_agent's output_type
+in rag.py) — drafted here as a reasonable guess; compare against whatever
+shape the lecture actually used.
 """
 
 import os
@@ -41,3 +44,25 @@ class Article(LanceModel):
     filename: str
     content: str = embedding_model.SourceField()
     embedding: Vector(embedding_model.ndims()) = embedding_model.VectorField()
+
+
+class Prompt(BaseModel):
+    """
+    The request body api.py's /rag/query endpoint expects — just the
+    user's question as plain text.
+    """
+    prompt: str
+
+
+class RagResponse(BaseModel):
+    """
+    The shape rag_agent (in rag.py) is forced to answer in, via
+    `output_type=RagResponse`. pydantic-ai makes the LLM fill in exactly
+    these fields instead of returning free-form text.
+
+    answer: the actual answer to the user's question.
+    source: which file(s) the answer was based on, since rag_agent's
+        instructions tell it to always cite its source.
+    """
+    answer: str
+    source: str
