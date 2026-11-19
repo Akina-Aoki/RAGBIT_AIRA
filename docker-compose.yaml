@@ -3,7 +3,7 @@ services:
         container_name: backend     # the name this container is known by
         build:
             context: .      # build using this whole project folder
-            dockerfile: dockerfile/backend.dockerfile
+            dockerfile: dockerfiles/backend.dockerfile
         ports:
             - "8000:8000"   # lets the pc reach container port 8000
         env_file:
@@ -14,7 +14,7 @@ services:
         container_name: frontend    # the name this container is known by
         build:
             context: .      # build using this whole project folder
-            dockerfile: dockerfile/frontend.dockerfile
+            dockerfile: dockerfiles/frontend.dockerfile
         ports:
             - "8501:8501"
         depends_on:

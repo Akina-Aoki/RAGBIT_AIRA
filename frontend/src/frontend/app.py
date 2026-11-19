@@ -2,9 +2,12 @@
 It’s the only piece the end user actually sees and clicks on. Everything else runs behind the scenes.
 """
 
+import os
 import streamlit as st
 import requests
 from pathlib import Path
+
+API_URL = os.environ.get("API_URL", "http://127.0.0.1:8000")   # bug fixed here
 
 # Streamlit is a library for building simple web pages purely in Python —
 # no HTML/JavaScript needed. Every st.something() call adds something
@@ -22,7 +25,7 @@ def layout():
         # This is a completely separate program — Streamlit and FastAPI
         # only talk to each other over this network request.
         response = requests.post(
-            "http://127.0.0.1:8000/rag/query", json={"prompt": text_input}
+            f"{API_URL}/rag/query", json={"prompt": text_input} # bug fixed here
         )
 
         # .json() turns the server's response back into a normal Python

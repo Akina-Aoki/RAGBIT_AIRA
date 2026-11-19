@@ -128,3 +128,7 @@ uv init --package frontend
 uv init --package backend
 uv sync --all-packages
 ```
+
+## Lecture commands I used
+- To build docker after dockerfiles setup
+`docker compose up -d --build`
