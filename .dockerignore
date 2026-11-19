@@ -1,0 +1,9 @@
+**/.pytest_cache
+.logfire
+.env
+.gitignore
+.git
+**/*.pyc
+**/*.ipynb
+**/ingestion.py
+**/pdfs_to_text.py
